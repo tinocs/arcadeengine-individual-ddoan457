@@ -14,9 +14,9 @@ public class Breakout extends Application {
 		// TODO Auto-generated method stub
 		primaryStage.setTitle("BREAKOUT GAME");
 		BorderPane root = new BorderPane();
-		BallWorld world = new BallWorld(500, 500);
+		BallWorld world = new BallWorld(1000, 1000);
 		root.setCenter(world);
-		Scene scene = new Scene(root);
+		Scene scene = new Scene(root, 1000, 1000);
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		world.start();
