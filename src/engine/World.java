@@ -21,7 +21,7 @@ public abstract class World extends Pane{
 	private Set<KeyCode>  pressed;
 	private boolean isSetWidth;
 	private boolean isSetHeight;
-	
+	private boolean initialized = false;
 	private boolean timerStopped;
 	
 	
@@ -36,8 +36,9 @@ public abstract class World extends Pane{
 	        public void changed(ObservableValue<? extends Number> obs, Number oldVal, Number newVal) {
 	            if (newVal.doubleValue() > 0) {
 	                isSetWidth = true;
-	                if (isSetWidth && isSetHeight) {
-	                    onDimensionsInitialized();
+	                if (isSetWidth && isSetHeight && !initialized) {
+	                    initialized = true;
+	                	onDimensionsInitialized();
 	                }
 	            }
 	        }
@@ -48,8 +49,9 @@ public abstract class World extends Pane{
 	        public void changed(ObservableValue<? extends Number> obs, Number oldVal, Number newVal) {
 	            if (newVal.doubleValue() > 0) {
 	                isSetHeight = true;
-	                if (isSetWidth && isSetHeight) {
-	                    onDimensionsInitialized();
+	                if (isSetWidth && isSetHeight && !initialized) {
+	                    initialized = true;
+	                	onDimensionsInitialized();
 	                }
 	            }
 	        }
@@ -60,36 +62,41 @@ public abstract class World extends Pane{
 	        public void changed(ObservableValue<? extends Scene> obs, Scene oldScene, Scene newScene) {
 	            if (newScene != null) {
 	                requestFocus();
+	                newScene.getRoot().requestFocus();
+	                
+	                newScene.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+	        	        @Override
+	        	        public void handle(KeyEvent e) {
+	        	            pressed.add(e.getCode());
+	        	        }
+	        	    });
+
+	        	    newScene.addEventHandler(KeyEvent.KEY_RELEASED, new EventHandler<KeyEvent>() {
+	        	        @Override
+	        	        public void handle(KeyEvent e) {
+	        	            pressed.remove(e.getCode());
+	        	        }
+	        	    });
 	            }
 	        }
 	    });
 
-	    setOnKeyPressed(new EventHandler<KeyEvent>() {
-	        @Override
-	        public void handle(KeyEvent e) {
-	            pressed.add(e.getCode());
-	        }
-	    });
-
-	    setOnKeyReleased(new EventHandler<KeyEvent>() {
-	        @Override
-	        public void handle(KeyEvent e) {
-	            pressed.remove(e.getCode());
-	        }
-	    });
+	    
 
 	    timer = new AnimationTimer() {
 	        @Override
 	        public void handle(long now) {
 	            act(now);
-	            for (int i = 0; i < getChildren().size(); i++) {
-	                Node node = getChildren().get(i);
-	                if (node instanceof Actor) {
-	                    Actor actor = (Actor) node;
-	                    if (getChildren().contains(actor)) {
-	                        actor.act(now);
-	                    }
-	                }
+	        	List<Node> copy = new ArrayList<>(getChildren());
+	            for(int i = 0; i < copy.size(); i ++) {
+	            	Node node = copy.get(i);
+	            	
+	            	if(Actor.class.isInstance(node)) {
+	            		Actor actor = (Actor) node;
+	            		if(getChildren().contains(actor)) {
+	            			actor.act(now);
+	            		}
+	            	}
 	            }
 	        }
 	    };

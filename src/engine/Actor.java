@@ -50,20 +50,14 @@ public abstract class Actor extends ImageView{
 		return intersecting;
 	}
 	
-	public <A extends Actor> A getOneIntersectingObkject(Class<A> cls) {
-		World world = getWorld();
-		if(world == null) {
+	public <A extends Actor> A getOneIntersectingObject(Class<A> cls) {
+		List<A> list = getIntersectingObjects(cls);
+		
+		if(list.size() == 0) {
 			return null;
 		}
+		return list.get(0);
 		
-		List<A> actors = world.getObjects(cls);
-		for(int i =0 ; i < actors.size(); i ++) {
-			if(actors.get(i) != this && this.getBoundsInParent().intersects(((Node) actors).getBoundsInParent())) {
-				return actors.get(i);
-			}
-		}
-		
-		return null;
 	}
 	
 	public abstract void act(long now);
